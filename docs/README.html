@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Good Runs Triage Website Documentation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <h1>Good Runs Triage Website: Documentation, utilities, and relevant information</h1>
+    <h2>1. Database structure</h2>
+    <p><strong>Summary:</strong><br>
+    'goodruns' uses 'runnumber', an integer, as the primary key. Each subdetector is reflected as a column in the table.
+    The datatype for subdetector columns is a custom composite type called 'triage' which is a tuple of two varchar(255) strings.
+    The first element of the triage type is called 'runclass' and the classes that are supported are: GOLDEN, QUESTIONABLE, BAD. The second element of the triage type is called 'notes' this is any string limited to 255 characters.</p>
+
+    <h3>TABLE: 'goodruns' DATABASE: 'Production'</h3>
+    <p><strong>'triage': ('runclass', 'notes')</strong></p>
+
+    <h3>Table: goodruns</h3>
+    <table>
+        <tr>
+            <th>Column</th>
+            <th>Type</th>
+            <th>Collation</th>
+            <th>Nullable</th>
+            <th>Default</th>
+        </tr>
+        <tr>
+            <td>runnumber</td>
+            <td>integer</td>
+            <td></td>
+            <td>not null</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>emcal</td>
+            <td>triage</td>
+            <td></td>
+            <td></td>
+            <td>ROW('BAD'::character varying(255), ''::character varying(255))</td>
+        </tr>
+        <tr>
+            <td>ohcal</td>
+            <td>triage</td>
+            <td></td>
+            <td></td>
+            <td>ROW('BAD'::character varying(255), ''::character varying(255))</td>
+        </tr>
+        <tr>
+            <td>ihcal</td>
+            <td>triage</td>
+            <td></td>
+            <td></td>
+            <td>ROW('BAD'::character varying(255), ''::character varying(255))</td>
+        </tr>
+        <tr>
+            <td>mbd</td>
+            <td>triage</td>
+            <td></td>
+            <td></td>
+            <td>ROW('BAD'::character varying(255), ''::character varying(255))</td>
+        </tr>
+        <tr>
+            <td>sepd</td>
+            <td>triage</td>
+            <td></td>
+            <td></td>
+            <td>ROW('BAD'::character varying(255), ''::character varying(255))</td>
+        </tr>
+        <tr>
+            <td>tpot</td>
+            <td>triage</td>
+            <td></td>
+            <td></td>
+            <td>ROW('BAD'::character varying(255), ''::character varying(255))</td>
+        </tr>
+        <tr>
+            <td>tpc</td>
+            <td>triage</td>
+            <td></td>
+            <td></td>
+            <td>ROW('BAD'::character varying(255), ''::character varying(255))</td>
+        </tr>
+        <tr>
+            <td>intt</td>
+            <td>triage</td>
+            <td></td>
+            <td></td>
+            <td>ROW('BAD'::character varying(255), ''::character varying(255))</td>
+        </tr>
+        <tr>
+            <td>mtd</td>
+            <td>triage</td>
+            <td></td>
+            <td></td>
+            <td>ROW('BAD'::character varying(255), ''::character varying(255))</td>
+        </tr>
+    </table>
+
+    <h2>Examples of Usage</h2>
+    <h3>Inserting a new run</h3>
+    <pre><code>
+    INSERT INTO goodruns (runnumber, emcal, ohcal, ihcal, mbd, sepd, tpot, tpc, intt, mtd)
+    VALUES
+    (42201,
+    ROW('GOLDEN', 'No issues'),
+    ROW('GOLDEN', 'No issues'),
+    ROW('GOLDEN', 'No issues'),
+    ROW('GOLDEN', 'No issues'),
+    ROW('GOLDEN', 'No issues'),
+    ROW('GOLDEN', 'No issues'),
+    ROW('GOLDEN', 'No issues'),
+    ROW('GOLDEN', 'No issues'),
+    ROW('GOLDEN', 'No issues'));
+    </code></pre>
+
+    <h3>Selecting all runs for a subdetector within a specific range</h3>
+    <pre><code>
+    Production=> SELECT runnumber, emcal FROM goodruns WHERE runnumber>42060 AND runnumber<42080;
+    </code></pre>
+    <h3>Output:</h3>
+    <pre><code>
+     runnumber |                  emcal
+    -----------+------------------------------------------
+         42068 | (GOLDEN,"triage example script worked!")
+         42069 | (QUESTIONABLE,test)
+         42070 | (BAD,"")
+         42071 | (BAD,"")
+         42072 | (BAD,"")
+         42073 | (BAD,"")
+         42074 | (BAD,"")
+         42075 | (BAD,"")
+         42079 | (BAD,"")
+    (9 rows)
+    </code></pre>
+
+    <h3>Selecting runs for a subdetector that are classified as GOLDEN</h3>
+    <pre><code>
+    Production=> SELECT runnumber,emcal FROM goodruns WHERE (emcal).runclass = 'GOLDEN';
+    </code></pre>
+    <h3>Output:</h3>
+    <pre><code>
+     runnumber |                        emcal
+    -----------+------------------------------------------------------
+         42201 | (GOLDEN,"No issues")
+         42068 | (GOLDEN,"triage example script worked!")
+         42797 | (GOLDEN,"Good data")
+         42325 | (GOLDEN,"Good physics, excellent for data analysis")
+    (4 rows)
+    </code></pre>
+
+    <h3>Select runs classified as GOLDEN for a subdetector in a certain range</h3>
+    <pre><code>
+    SELECT runnumber,emcal FROM goodruns WHERE (emcal).runclass = 'GOLDEN' AND runnumber<47800 AND runnumber>47740;
+    </code></pre>
+    <h3>Output:</h3>
+    <pre><code>
+     runnumber |               emcal
+    -----------+------------------------------------
+         47748 | (GOLDEN,"discovered graviton")
+         47751 | (GOLDEN,"nobel prize winning run")
+         47758 | (GOLDEN,"no notes")
+    (3 rows)
+    </code></pre>
+
+    <h3>Selecting runs for a subdetector whose notes contain the string "good"</h3>
+    <pre><code>
+    Production=> SELECT runnumber,emcal FROM goodruns WHERE (emcal).notes ILIKE '%good%';
+    </code></pre>
+    <h3>Output:</h3>
+    <pre><code>
+     runnumber |                        emcal
+    -----------+------------------------------------------------------
+         47698 | (QUESTIONABLE,"good enough for foo analysis")
+         42797 | (GOLDEN,"Good data")
+         42325 | (GOLDEN,"Good physics, excellent for data analysis")
+         47540 | (BAD,"not good for bar analysis")
+         47571 | (QUESTIONABLE,"coffee was not good")
+         47660 | (BAD,"NOT GOOD at all, beam dumped")
+    (6 rows)
+    </code></pre>
+</body>
+</html>
