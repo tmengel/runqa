@@ -123,7 +123,7 @@ def get_run_metadata(run_numbers):
         SELECT runnumber,
                CAST(EXTRACT(EPOCH FROM ertimestamp) AS BIGINT)
                - CAST(EXTRACT(EPOCH FROM brtimestamp) AS BIGINT) AS duration,
-               runtype
+               runtype, brtimestamp
         FROM run
         WHERE runnumber IN ({placeholders})
     """
@@ -131,8 +131,8 @@ def get_run_metadata(run_numbers):
     with _conn_daq() as conn:
         with conn.cursor() as cur:
             cur.execute(sql, run_numbers)
-            for rn, dur, rt in cur.fetchall():
-                info[rn] = {"duration": dur, "runtype": (rt or "").lower()}
+            for rn, dur, rt, brtime in cur.fetchall():
+                info[rn] = {"duration": dur, "runtype": (rt or "").lower(), "beginruntime": brtime}
     return info
 
 def apply_updates(updates_by_run):

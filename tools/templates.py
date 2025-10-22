@@ -425,6 +425,7 @@ def render_table(rows: List[Tuple[Any, ...]],
     out.append("<table border='1'>")
     out.append("<thead><tr>")
     out.append("<th>Run #</th>")
+    out.append("<th>Begin Run Time</th>")
     out.append("<th>QA Links</th>")
     out.append("<th>Previews</th>")
     out.append("<th>Run Type</th>")
@@ -442,7 +443,8 @@ def render_table(rows: List[Tuple[Any, ...]],
 
     for row in rows:
         rn = row[0]
-        subs = row[1:]
+        runtime = row[1]
+        subs = row[2:]
         rt  = (meta.get(rn, {}) or {}).get("runtype", "") or ""
 
         offline = _offline_paths_urls(rn, rt)
@@ -481,6 +483,7 @@ def render_table(rows: List[Tuple[Any, ...]],
 
         out.append("<tr>")
         out.append(f"<td>{rn}</td>")
+        out.append(f"<td>{runtime}</td>")
         out.append(f"<td>{qa_links_cell}</td>")
         out.append(f"<td>{previews_cell}</td>")
         out.append(f"<td>{_html.escape(rt)}</td>")
