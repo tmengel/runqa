@@ -8,6 +8,7 @@ import math
 import html
 import urllib.parse
 import urllib.request
+import datetime
 import cgi
 import cgitb
 cgitb.enable() 
@@ -161,6 +162,9 @@ try:
     rows = []
     for row in raw_rows:
         rn = row[0]
+        runtime = (meta.get(rn,{}).get("beginruntime") or "")
+        runtime_format = runtime.strftime("%Y-%m-%d %H:%M:%S") if runtime else "&mdash;"
+        new_row = (rn, runtime) + row[1:]
         rt = (meta.get(rn, {}).get("runtype", "") or "")
         if run_type_filter and rt != run_type_filter:
             continue
@@ -176,7 +180,7 @@ try:
         if current_params["calo_ready"] and (not os.path.exists(cqa)):
             continue
 
-        rows.append(row)
+        rows.append(new_row)
 
     # ----- Render results area (AJAX-swappable) -----
     print('<div id="resultsRoot">')
